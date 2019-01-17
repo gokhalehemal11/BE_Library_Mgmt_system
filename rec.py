@@ -8,6 +8,7 @@
 
 from PyQt4 import QtCore, QtGui
 import csv
+import random
 #import re
 
 try:
@@ -26,6 +27,7 @@ except AttributeError:
 
 reccomendation_based_on_current_author=[]
 reccomendation_based_on_average_ratings=[]
+reccomendation_based_on_genre=[]
 
 class Ui_Recwindow(object):
 
@@ -49,22 +51,26 @@ class Ui_Recwindow(object):
 
 
             #####  Recommendation Trial code !!!!
-        with open('books.csv','r') as csv_file:
+        with open('output.csv','r') as csv_file:
             data= csv.DictReader(csv_file)
             current_author=""
+            current_genre=""
 
             for line in data:
                 if(searched_buk.lower() == line['title'].lower()):
                     current_author=line['authors']
+                    current_genre=line['genre']
 
             print "Current authors:  ", current_author                      #### Current authors based on selected book 
+            print "Current genre:  ", current_genre	                     #### Current authors based on selected book 
 
             csv_file.seek(0)                                                #### Set DictReader back to start of file
 
             ###############  Books From Similar author
 
             del reccomendation_based_on_current_author[:]               #######     CLears contents of global lists
-            del reccomendation_based_on_average_ratings[:]              #######
+            del reccomendation_based_on_average_ratings[:]
+            del reccomendation_based_on_genre[:]               			#######
 
             for line in data:
                 if(line['title'].lower() == searched_buk.lower()):
@@ -98,6 +104,22 @@ class Ui_Recwindow(object):
                 print "\n Thanks & Keep Reading \n"     
             
             print "*****************************************************************************************************************************************"
+
+            csv_file.seek(0)
+
+            ###########  Books based on same genre
+
+            next(data)
+
+            for line in data:
+            	if(line['genre'] == current_genre):
+            		reccomendation_based_on_genre.append(line['title'])				########   Recommends Based on Genre 
+            		
+            print "\n Similar Genre Books: \n"		
+            print reccomendation_based_on_genre	        		
+
+            print "*****************************************************************************************************************************************"
+			
  
 
     def setupUi(self, MainWindow):
@@ -111,14 +133,14 @@ class Ui_Recwindow(object):
         self.listWidget.setStyleSheet(_fromUtf8("background-color: rgb(85, 255, 255);\n"
 "color:rgb(0, 0, 0);"))
         self.listWidget.setObjectName(_fromUtf8("listWidget"))
-        self.listWidget.addItems(reccomendation_based_on_current_author)
+        self.listWidget.addItems(reccomendation_based_on_current_author)				##### DiSplays other books based on current author
 
         self.listWidget_2 = QtGui.QListWidget(self.centralwidget)
         self.listWidget_2.setGeometry(QtCore.QRect(420, 150, 256, 192))
         self.listWidget_2.setStyleSheet(_fromUtf8("background-color: rgb(85, 255, 255);\n"
 "color:rgb(0, 0, 0);"))
         self.listWidget_2.setObjectName(_fromUtf8("listWidget_2"))
-        self.listWidget_2.addItems(reccomendation_based_on_average_ratings)
+        self.listWidget_2.addItems(random.sample(reccomendation_based_on_genre, 10))				##### DiSplays other books based on ratings
 
         self.lineEdit = QtGui.QLineEdit(self.centralwidget)
         self.lineEdit.setGeometry(QtCore.QRect(230, 90, 321, 27))
@@ -156,7 +178,7 @@ class Ui_Recwindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow", None))
         self.lineEdit.setText(_translate("MainWindow", "                           Recommeded to read", None))
         self.lineEdit_2.setText(_translate("MainWindow", "  Also From this Author ", None))
-        self.lineEdit_3.setText(_translate("MainWindow", "    Top Rated Books of All-TIme  ", None))
+        self.lineEdit_3.setText(_translate("MainWindow", "     Similar Genre Books  ", None))
         self.pushButton.setText(_translate("MainWindow", "Search Book", None))
 
 
